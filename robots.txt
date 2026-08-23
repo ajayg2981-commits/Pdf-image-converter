@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ajayg2981-commits.github.io/Pdf-image-converter/sitemap.xml

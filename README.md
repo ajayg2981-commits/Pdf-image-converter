@@ -1,16 +1,14 @@
 # PDF ↔ Image Converter
 
-A mobile-friendly, browser-based converter:
+A browser-based converter for:
 - PDF → PNG/JPG
-- Multiple Images → PDF
-- No server upload; processing happens in the browser.
+- Multiple JPG/PNG/WebP images → PDF
+
+## Privacy
+The basic conversion runs in the browser. No conversion backend is used.
 
 ## GitHub Pages
-1. Create a GitHub repository.
-2. Upload `index.html`.
-3. Open **Settings → Pages**.
-4. Under Build and deployment choose **Deploy from a branch**.
-5. Select `main` and `/ (root)`, then Save.
-6. GitHub will provide your live website URL.
+Publish the repository from the `main` branch and `/(root)` in Settings → Pages.
 
-The site uses PDF.js, jsPDF and JSZip from public CDNs.
+## AdSense
+Do not add placeholder publisher IDs. After an AdSense account is approved, add the official AdSense code supplied by Google to the site and update the privacy/cookie disclosures as required.

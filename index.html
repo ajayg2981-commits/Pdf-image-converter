@@ -3,691 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>PDF ↔ Image Converter</title>
 <meta name="description" content="Free browser-based PDF to Image and Image to PDF converter. Files are processed locally in your browser.">
-
-<!-- PDF.js -->
-<script type="module">
-import * as pdfjsLib from
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
-
-window.pdfjsLib = pdfjsLib;
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
-
-window.dispatchEvent(new Event("pdfjs-ready"));
-</script>
-
-<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f5f7fb;
-  color:#172033;
-}
-
-header{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:white;
-  padding:48px 20px 72px;
-  text-align:center;
-}
-
-header h1{margin:0 0 10px;font-size:38px}
-header p{margin:0;opacity:.92;font-size:17px}
-
-.container{
-  max-width:1050px;
-  margin:-38px auto 50px;
-  padding:0 18px;
-}
-
-.tabs{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-bottom:22px;
-  flex-wrap:wrap;
-}
-
-.tab{
-  border:0;
-  background:white;
-  padding:13px 24px;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:700;
-  box-shadow:0 5px 18px #00000012;
-}
-
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#172033}
+header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;text-align:center;padding:34px 16px 28px}
+header h1{margin:0 0 8px;font-size:30px}
+header p{margin:0;opacity:.9}
+nav{background:white;display:flex;justify-content:center;gap:22px;padding:13px 10px;box-shadow:0 2px 8px #0001;position:sticky;top:0;z-index:5}
+nav a{color:#39415b;text-decoration:none;font-weight:600;font-size:14px}
+nav a:hover{color:#4f46e5}
+.container{max-width:1050px;margin:28px auto;padding:0 15px}
+.tabs{display:flex;justify-content:center;gap:8px;margin:-45px 0 20px;position:relative}
+.tab{border:0;padding:12px 20px;border-radius:10px 10px 0 0;background:white;color:#333;font-weight:700;cursor:pointer}
 .tab.active{background:#4f46e5;color:white}
-
-.card{
-  background:white;
-  border-radius:20px;
-  padding:28px;
-  box-shadow:0 10px 30px #00000010;
-}
-
-.panel{display:none}
-.panel.active{display:block}
-
-.drop{
-  border:2px dashed #a5b4fc;
-  border-radius:16px;
-  padding:42px 20px;
-  text-align:center;
-  background:#f8faff;
-  cursor:pointer;
-}
-
-.drop.drag{
-  background:#eef2ff;
-  border-color:#4f46e5;
-}
-
-.drop h2{margin:8px 0}
-.drop p{color:#667085}
-
+.card{background:white;border-radius:16px;padding:20px;box-shadow:0 5px 22px #00000012;margin-bottom:25px}
+.panel{display:none}.panel.active{display:block}
+.drop{border:2px dashed #b8bfd6;border-radius:14px;padding:32px 15px;text-align:center;cursor:pointer;background:#fafbff}
+.drop:hover{border-color:#4f46e5;background:#f6f5ff}
+.drop-icon{font-size:34px}
+.drop h2{font-size:18px;margin:8px 0}
+.drop p{color:#7b8192;margin:6px 0 15px}
 input[type=file]{display:none}
-
-.btn{
-  border:0;
-  border-radius:10px;
-  padding:12px 18px;
-  background:#4f46e5;
-  color:white;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.btn.secondary{
-  background:#eef2ff;
-  color:#3730a3;
-}
-
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.controls{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  align-items:center;
-  margin-top:18px;
-}
-
-select{
-  padding:11px;
-  border:1px solid #d0d5dd;
-  border-radius:9px;
-  background:white;
-}
-
-.status{
-  margin-top:18px;
-  color:#475467;
-  font-weight:500;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:16px;
-  margin-top:20px;
-}
-
-.preview{
-  border:1px solid #e4e7ec;
-  border-radius:12px;
-  padding:10px;
-  background:white;
-}
-
-.preview canvas,.preview img{
-  width:100%;
-  height:180px;
-  object-fit:contain;
-  background:#f8f9fc;
-  border-radius:8px;
-}
-
-.preview button{
-  width:100%;
-  margin-top:8px;
-}
-
-.small{
-  font-size:13px;
-  color:#667085;
-  margin-top:8px;
-  word-break:break-word;
-}
-
-footer{
-  text-align:center;
-  color:#667085;
-  padding:20px;
-}
-
-.progress{
-  height:8px;
-  background:#eaecf0;
-  border-radius:20px;
-  overflow:hidden;
-  margin-top:15px;
-}
-
-.progress div{
-  height:100%;
-  width:0;
-  background:#4f46e5;
-  transition:width .2s;
-}
-
-.notice{
-  background:#f0fdf4;
-  border:1px solid #bbf7d0;
-  color:#166534;
-  padding:12px;
-  border-radius:10px;
-  margin-top:15px;
-  font-size:14px;
-}
-
-@media(max-width:600px){
-  header h1{font-size:29px}
-  .card{padding:18px}
-  .controls{
-    flex-direction:column;
-    align-items:stretch;
-  }
-  .controls label{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-  }
-}
+button{border:0;border-radius:9px;padding:11px 17px;background:#4f46e5;color:white;font-weight:700;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.secondary{background:#eef0f7;color:#333}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+select{padding:10px;border:1px solid #d6d9e3;border-radius:8px;background:white}
+.status{margin-top:12px;color:#555}
+.preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:18px}
+.preview-item{border:1px solid #e1e4ed;border-radius:10px;padding:10px;background:#fff}
+.preview-item img{width:100%;height:150px;object-fit:contain;background:#f5f6fa;border-radius:7px}
+.preview-item p{font-size:12px;margin:8px 0 0;word-break:break-word}
+.info{text-align:center;color:#747b8c;margin:25px 0}
+footer{background:#171b2a;color:#dce0ea;text-align:center;padding:30px 15px;margin-top:40px}
+footer a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px}
+.small{font-size:12px;color:#9da5b8;margin-top:12px}
+@media(max-width:600px){header h1{font-size:25px}.container{margin-top:18px}.tabs{margin:0 0 15px}nav{gap:13px;flex-wrap:wrap}.drop{padding:25px 10px}}
 </style>
 </head>
-
 <body>
 
 <header>
-  <h1>PDF ↔ Image Converter</h1>
-  <p>Convert PDF to images and images to PDF — directly in your browser.</p>
+<h1>PDF ↔ Image Converter</h1>
+<p>Convert PDF to images and images to PDF — directly in your browser.</p>
 </header>
 
+<nav>
+<a href="./">Home</a>
+<a href="about.html">About</a>
+<a href="privacy.html">Privacy Policy</a>
+<a href="terms.html">Terms</a>
+<a href="contact.html">Contact</a>
+</nav>
+
 <div class="container">
+<div class="tabs">
+<button class="tab active" id="pdfTab">PDF → Image</button>
+<button class="tab" id="imgTab">Image → PDF</button>
+</div>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="pdf2img">PDF → Image</button>
-    <button class="tab" data-tab="img2pdf">Image → PDF</button>
-  </div>
+<div class="card panel active" id="pdfPanel">
+<div class="drop" id="pdfDrop">
+<div class="drop-icon">📄</div>
+<h2>Select a PDF</h2>
+<p>Click here or drag & drop a PDF file</p>
+<label for="pdfInput"><button type="button">Choose PDF</button></label>
+<input id="pdfInput" type="file" accept="application/pdf">
+</div>
+<div class="controls">
+<label>Image format:
+<select id="format"><option value="png">PNG</option><option value="jpeg">JPG</option></select></label>
+<label>Quality:
+<select id="quality"><option value="1">High</option><option value="0.8">Medium</option><option value="0.6">Low</option></select></label>
+<button id="convertPdf" disabled>Convert PDF</button>
+<button id="downloadAll" class="secondary" disabled>Download All</button>
+</div>
+<div class="status" id="pdfStatus">No PDF selected.</div>
+<div class="preview" id="pdfPreview"></div>
+</div>
 
-  <!-- PDF TO IMAGE -->
-  <section id="pdf2img" class="panel active card">
+<div class="card panel" id="imgPanel">
+<div class="drop" id="imgDrop">
+<div class="drop-icon">🖼️</div>
+<h2>Select Images</h2>
+<p>Choose one or multiple JPG/PNG images</p>
+<label for="imgInput"><button type="button">Choose Images</button></label>
+<input id="imgInput" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+</div>
+<div class="controls">
+<label>Page size:
+<select id="pageSize"><option value="a4">A4</option><option value="fit">Fit to Image</option></select></label>
+<label>Orientation:
+<select id="orientation"><option value="auto">Auto</option><option value="p">Portrait</option><option value="l">Landscape</option></select></label>
+<button id="convertImg" disabled>Convert to PDF</button>
+<button id="clearImg" class="secondary" disabled>Clear</button>
+</div>
+<div class="status" id="imgStatus">No images selected.</div>
+<div class="preview" id="imgPreview"></div>
+</div>
 
-    <div class="drop" id="pdfDrop">
-      <div style="font-size:42px">📄</div>
-      <h2>Select a PDF</h2>
-      <p>Click here or drag & drop a PDF file</p>
-
-      <input id="pdfInput" type="file" accept="application/pdf">
-
-      <button class="btn" type="button" id="choosePdfBtn">
-        Choose PDF
-      </button>
-    </div>
-
-    <div class="controls">
-      <label>
-        Image format:
-        <select id="format">
-          <option value="png">PNG</option>
-          <option value="jpeg">JPG</option>
-        </select>
-      </label>
-
-      <label>
-        Quality:
-        <select id="scale">
-          <option value="1">Normal</option>
-          <option value="1.5" selected>High</option>
-          <option value="2">Very High</option>
-        </select>
-      </label>
-
-      <button class="btn" id="convertPdf" disabled>Convert PDF</button>
-
-      <button class="btn secondary" id="downloadAll" disabled>
-        Download All
-      </button>
-    </div>
-
-    <div class="progress">
-      <div id="pdfProgress"></div>
-    </div>
-
-    <div class="status" id="pdfStatus">No PDF selected.</div>
-
-    <div class="grid" id="pdfResults"></div>
-  </section>
-
-  <!-- IMAGE TO PDF -->
-  <section id="img2pdf" class="panel card">
-
-    <div class="drop" id="imgDrop">
-      <div style="font-size:42px">🖼️</div>
-      <h2>Select Images</h2>
-      <p>Choose one or multiple JPG/PNG/WebP images</p>
-
-      <input
-        id="imgInput"
-        type="file"
-        accept="image/png,image/jpeg,image/jpg,image/webp"
-        multiple
-      >
-
-      <button class="btn" type="button" id="chooseImagesBtn">
-        Choose Images
-      </button>
-    </div>
-
-    <div class="controls">
-      <label>
-        Page size:
-        <select id="pageSize">
-          <option value="a4">A4</option>
-          <option value="letter">Letter</option>
-          <option value="fit">Fit to image</option>
-        </select>
-      </label>
-
-      <button class="btn" id="convertImages" disabled>
-        Create PDF
-      </button>
-
-      <button class="btn secondary" id="clearImages" disabled>
-        Clear
-      </button>
-    </div>
-
-    <div class="status" id="imgStatus">No images selected.</div>
-
-    <div class="grid" id="imgResults"></div>
-  </section>
-
+<p class="info">Files are processed locally in your browser. Your selected files are not uploaded to our server.</p>
 </div>
 
 <footer>
-  Files are processed locally in your browser. They are not uploaded to a server.
+<div>
+<a href="./">Home</a>
+<a href="about.html">About</a>
+<a href="privacy.html">Privacy Policy</a>
+<a href="terms.html">Terms</a>
+<a href="contact.html">Contact</a>
+</div>
+<div class="small">© 2026 PDF ↔ Image Converter. All rights reserved.</div>
 </footer>
 
-<script>
-const $ = id => document.getElementById(id);
+<script type="module">
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
-const pdfInput = $("pdfInput");
-const imgInput = $("imgInput");
+const {jsPDF}=window.jspdf;
+const $=id=>document.getElementById(id);
 
-let pdfFile = null;
-let imageFiles = [];
-let pdfBlobs = [];
+const pdfTab=$("pdfTab"),imgTab=$("imgTab"),pdfPanel=$("pdfPanel"),imgPanel=$("imgPanel");
+pdfTab.onclick=()=>{pdfTab.classList.add("active");imgTab.classList.remove("active");pdfPanel.classList.add("active");imgPanel.classList.remove("active")};
+imgTab.onclick=()=>{imgTab.classList.add("active");pdfTab.classList.remove("active");imgPanel.classList.add("active");pdfPanel.classList.remove("active")};
 
-$("choosePdfBtn").onclick = () => pdfInput.click();
-$("chooseImagesBtn").onclick = () => imgInput.click();
+let pdfFile=null, rendered=[];
+let images=[];
 
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
-
-    btn.classList.add("active");
-    $(btn.dataset.tab).classList.add("active");
-  };
-});
-
-function setupDrop(zone, input, handler){
-  zone.addEventListener("click", e => {
-    if(e.target.tagName !== "BUTTON") input.click();
-  });
-
-  ["dragenter","dragover"].forEach(event => {
-    zone.addEventListener(event, e => {
-      e.preventDefault();
-      zone.classList.add("drag");
-    });
-  });
-
-  ["dragleave","drop"].forEach(event => {
-    zone.addEventListener(event, e => {
-      e.preventDefault();
-      zone.classList.remove("drag");
-    });
-  });
-
-  zone.addEventListener("drop", e => {
-    handler([...e.dataTransfer.files]);
-  });
-
-  input.addEventListener("change", () => {
-    handler([...input.files]);
-  });
+function wireDrop(drop,input){
+  drop.onclick=e=>{if(e.target.tagName!=="BUTTON")input.click()};
+  drop.ondragover=e=>{e.preventDefault();drop.style.borderColor="#4f46e5"};
+  drop.ondragleave=()=>drop.style.borderColor="";
+  drop.ondrop=e=>{e.preventDefault();drop.style.borderColor="";input.files=e.dataTransfer.files;input.dispatchEvent(new Event("change"))};
 }
+wireDrop($("pdfDrop"),$("pdfInput")); wireDrop($("imgDrop"),$("imgInput"));
 
-setupDrop($("pdfDrop"), pdfInput, files => {
-  pdfFile = files.find(f => f.type === "application/pdf") || null;
+$("pdfInput").onchange=()=>{pdfFile=$("pdfInput").files[0]||null;rendered=[];$("pdfPreview").innerHTML="";$("downloadAll").disabled=true;$("convertPdf").disabled=!pdfFile;$("pdfStatus").textContent=pdfFile?`Selected: ${pdfFile.name}`:"No PDF selected."};
 
-  $("convertPdf").disabled = !pdfFile;
-
-  $("pdfStatus").textContent = pdfFile
-    ? `Selected: ${pdfFile.name}`
-    : "Please select a valid PDF file.";
-
-  $("pdfResults").innerHTML = "";
-  $("downloadAll").disabled = true;
-  $("pdfProgress").style.width = "0%";
-});
-
-setupDrop($("imgDrop"), imgInput, files => {
-  imageFiles = files.filter(f => f.type.startsWith("image/"));
-
-  $("convertImages").disabled = imageFiles.length === 0;
-  $("clearImages").disabled = imageFiles.length === 0;
-
-  renderImagePreviews();
-});
-
-function renderImagePreviews(){
-  $("imgResults").innerHTML = "";
-
-  imageFiles.forEach((file, i) => {
-    const div = document.createElement("div");
-    div.className = "preview";
-
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-
-    const p = document.createElement("div");
-    p.className = "small";
-    p.textContent = `${i + 1}. ${file.name}`;
-
-    div.appendChild(img);
-    div.appendChild(p);
-    $("imgResults").appendChild(div);
-  });
-
-  $("imgStatus").textContent =
-    imageFiles.length
-      ? `${imageFiles.length} image(s) selected.`
-      : "No images selected.";
-}
-
-function saveBlob(blob, filename){
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-
-  a.href = url;
-  a.download = filename;
-
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-$("convertPdf").onclick = async () => {
-  if(!pdfFile || !window.pdfjsLib) return;
-
-  $("convertPdf").disabled = true;
-  $("downloadAll").disabled = true;
-  $("pdfResults").innerHTML = "";
-  pdfBlobs = [];
-  $("pdfProgress").style.width = "0%";
-
-  try{
-    const data = await pdfFile.arrayBuffer();
-
-    const pdf = await window.pdfjsLib.getDocument({data}).promise;
-    const scale = parseFloat($("scale").value);
-    const fmt = $("format").value;
-
-    for(let i = 1; i <= pdf.numPages; i++){
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({scale});
-
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.ceil(viewport.width);
-      canvas.height = Math.ceil(viewport.height);
-
-      await page.render({
-        canvasContext: canvas.getContext("2d"),
-        viewport
-      }).promise;
-
-      const mime = fmt === "png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise(resolve =>
-        canvas.toBlob(resolve, mime, 0.92)
-      );
-
-      pdfBlobs.push({
-        blob,
-        name: `page-${i}.${fmt === "png" ? "png" : "jpg"}`
-      });
-
-      const div = document.createElement("div");
-      div.className = "preview";
-
-      const thumb = document.createElement("canvas");
-      thumb.width = canvas.width;
-      thumb.height = canvas.height;
-      thumb.style.width = "100%";
-      thumb.style.height = "180px";
-      thumb.style.objectFit = "contain";
-
-      thumb.getContext("2d").drawImage(canvas, 0, 0);
-
-      const button = document.createElement("button");
-      button.className = "btn secondary";
-      button.textContent = `Download Page ${i}`;
-
-      button.onclick = () =>
-        saveBlob(blob, `page-${i}.${fmt === "png" ? "png" : "jpg"}`);
-
-      div.appendChild(thumb);
-      div.appendChild(button);
-
-      $("pdfResults").appendChild(div);
-
-      $("pdfProgress").style.width =
-        `${Math.round((i / pdf.numPages) * 100)}%`;
-    }
-
-    $("pdfStatus").textContent =
-      `Done — converted ${pdf.numPages} page(s).`;
-
-    $("downloadAll").disabled = pdfBlobs.length === 0;
-
-  }catch(error){
-    console.error(error);
-    $("pdfStatus").textContent =
-      "Could not convert this PDF. Please try another PDF.";
-  }finally{
-    $("convertPdf").disabled = false;
+$("convertPdf").onclick=async()=>{
+ if(!pdfFile)return;
+ $("convertPdf").disabled=true;$("pdfStatus").textContent="Converting PDF…";$("pdfPreview").innerHTML="";rendered=[];
+ try{
+  const data=await pdfFile.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise;
+  const format=$("format").value,quality=Number($("quality").value);
+  for(let i=1;i<=pdf.numPages;i++){
+   const page=await pdf.getPage(i),vp=page.getViewport({scale:1.7});
+   const c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);
+   await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+   const url=c.toDataURL(format==="jpeg"?"image/jpeg":"image/png",quality);
+   rendered.push({url,name:`page-${i}.${format==="jpeg"?"jpg":"png"}`});
+   const item=document.createElement("div");item.className="preview-item";
+   const im=document.createElement("img");im.src=url;item.appendChild(im);
+   const p=document.createElement("p");p.textContent=`Page ${i}`;item.appendChild(p);
+   $("pdfPreview").appendChild(item);
   }
+  $("pdfStatus").textContent=`Done — ${rendered.length} page(s) converted.`;
+  $("downloadAll").disabled=!rendered.length;
+ }catch(e){$("pdfStatus").textContent="Could not convert this PDF. Please try another file.";console.error(e)}
+ $("convertPdf").disabled=false;
 };
 
-$("downloadAll").onclick = async () => {
-  if(!pdfBlobs.length) return;
-
-  if(pdfBlobs.length === 1){
-    saveBlob(pdfBlobs[0].blob, pdfBlobs[0].name);
-    return;
-  }
-
-  try{
-    const script = document.createElement("script");
-    script.src =
-      "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
-
-    script.onload = async () => {
-      const zip = new JSZip();
-
-      pdfBlobs.forEach(item => {
-        zip.file(item.name, item.blob);
-      });
-
-      const blob = await zip.generateAsync({type:"blob"});
-      saveBlob(blob, "converted-images.zip");
-    };
-
-    script.onerror = () => {
-      alert("ZIP library could not be loaded. Please download pages individually.");
-    };
-
-    document.head.appendChild(script);
-
-  }catch(error){
-    console.error(error);
-  }
+$("downloadAll").onclick=()=>{
+ rendered.forEach((x,i)=>setTimeout(()=>{const a=document.createElement("a");a.href=x.url;a.download=x.name;a.click()},i*250));
 };
 
-$("clearImages").onclick = () => {
-  imageFiles = [];
-  imgInput.value = "";
-  renderImagePreviews();
-
-  $("convertImages").disabled = true;
-  $("clearImages").disabled = true;
+$("imgInput").onchange=()=>{
+ images=[...$("imgInput").files].filter(f=>f.type.startsWith("image/"));
+ $("imgPreview").innerHTML="";
+ images.forEach((f,i)=>{const r=new FileReader();r.onload=()=>{const item=document.createElement("div");item.className="preview-item";item.innerHTML=`<img src="${r.result}"><p>${i+1}. ${f.name}</p>`;$("imgPreview").appendChild(item)};r.readAsDataURL(f)});
+ $("imgStatus").textContent=images.length?`${images.length} image(s) selected.`:"No images selected.";
+ $("convertImg").disabled=!images.length;$("clearImg").disabled=!images.length;
 };
 
-$("convertImages").onclick = async () => {
-  if(!imageFiles.length || !window.jspdf) return;
+$("clearImg").onclick=()=>{$("imgInput").value="";images=[];$("imgPreview").innerHTML="";$("imgStatus").textContent="No images selected.";$("convertImg").disabled=true;$("clearImg").disabled=true};
 
-  const { jsPDF } = window.jspdf;
-  const size = $("pageSize").value;
-
-  try{
-    $("convertImages").disabled = true;
-    $("imgStatus").textContent =
-      `Creating PDF from ${imageFiles.length} image(s)...`;
-
-    let doc = null;
-
-    for(let i = 0; i < imageFiles.length; i++){
-      const file = imageFiles[i];
-      const data = await fileToDataURL(file);
-
-      const props = await getImageProperties(data);
-
-      let w = props.width * 0.264583;
-      let h = props.height * 0.264583;
-
-      if(size === "fit"){
-        if(i === 0){
-          doc = new jsPDF({
-            unit:"mm",
-            format:[w,h]
-          });
-        }else{
-          doc.addPage([w,h]);
-        }
-
-        doc.addImage(data, props.format, 0, 0, w, h);
-      }else{
-        const page = size === "letter" ? "letter" : "a4";
-
-        if(i === 0){
-          doc = new jsPDF({
-            unit:"mm",
-            format:page,
-            orientation: w > h ? "landscape" : "portrait"
-          });
-        }else{
-          doc.addPage(page, w > h ? "landscape" : "portrait");
-        }
-
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-        const margin = 8;
-
-        const maxW = pageW - margin * 2;
-        const maxH = pageH - margin * 2;
-
-        const ratio = Math.min(maxW / w, maxH / h);
-
-        const drawW = w * ratio;
-        const drawH = h * ratio;
-
-        const x = (pageW - drawW) / 2;
-        const y = (pageH - drawH) / 2;
-
-        doc.addImage(data, props.format, x, y, drawW, drawH);
-      }
-
-      $("imgStatus").textContent =
-        `Added ${i + 1} of ${imageFiles.length} image(s).`;
-    }
-
-    doc.save("images-to-pdf.pdf");
-
-    $("imgStatus").textContent =
-      `Done — PDF created from ${imageFiles.length} image(s).`;
-
-  }catch(error){
-    console.error(error);
-    $("imgStatus").textContent =
-      "Could not create the PDF. Please try another image.";
-  }finally{
-    $("convertImages").disabled = false;
+$("convertImg").onclick=async()=>{
+ if(!images.length)return;
+ $("convertImg").disabled=true;$("imgStatus").textContent="Creating PDF…";
+ try{
+  const size=$("pageSize").value,ori=$("orientation").value;
+  let doc=null;
+  for(let i=0;i<images.length;i++){
+   const img=await loadImage(images[i]),iw=img.naturalWidth,ih=img.naturalHeight;
+   let o=ori;if(o==="auto")o=iw>=ih?"l":"p";
+   if(!doc)doc=new jsPDF({orientation:o,unit:"mm",format:size==="fit"?[iw*0.264583,ih*0.264583]:"a4"});
+   else{
+    if(size==="fit")doc.addPage([iw*0.264583,ih*0.264583],o);
+    else doc.addPage("a4",o);
+   }
+   const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+   const margin=size==="fit"?0:8,maxW=pw-margin*2,maxH=ph-margin*2;
+   const scale=Math.min(maxW/(iw*0.264583),maxH/(ih*0.264583));
+   const w=iw*0.264583*scale,h=ih*0.264583*scale;
+   doc.addImage(img,"JPEG",(pw-w)/2,(ph-h)/2,w,h);
   }
+  doc.save("images-to-pdf.pdf");$("imgStatus").textContent="PDF created and downloaded successfully.";
+ }catch(e){console.error(e);$("imgStatus").textContent="Could not create PDF. Please try JPG/PNG images."}
+ $("convertImg").disabled=false;
 };
 
-function fileToDataURL(file){
-  return new Promise((resolve,reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-
-    reader.readAsDataURL(file);
-  });
-}
-
-function getImageProperties(data){
-  return new Promise((resolve,reject) => {
-    const img = new Image();
-
-    img.onload = () => {
-      let format = "JPEG";
-
-      if(data.startsWith("data:image/png")){
-        format = "PNG";
-      }
-
-      resolve({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-        format
-      });
-    };
-
-    img.onerror = reject;
-    img.src = data;
-  });
-}
+function loadImage(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
 </script>
-
 </body>
 </html>

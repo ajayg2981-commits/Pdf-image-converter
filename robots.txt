@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://ajayg2981-commits.github.io/Pdf-image-converter/sitemap.xml
+
+Sitemap: https://phenomenal-faloodeh-149eb2.netlify.app/sitemap.xml

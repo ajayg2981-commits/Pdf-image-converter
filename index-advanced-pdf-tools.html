@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free PDF to JPG/PNG &amp; Image to PDF Converter</title>
+<meta name="description" content="Convert PDF pages to JPG or PNG, or combine JPG, PNG and WebP images into a PDF. Free, fast, and processed locally in your browser.">
+<meta name="keywords" content="PDF to JPG, PDF to PNG, JPG to PDF, PNG to PDF, image to PDF, free PDF converter">
+<meta name="author" content="Ajay Gupta">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://phenomenal-faloodeh-149eb2.netlify.app/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free PDF to JPG/PNG &amp; Image to PDF Converter">
+<meta property="og:description" content="Convert PDF pages to JPG or PNG and combine images into PDF. Free browser-based converter.">
+<meta property="og:url" content="https://phenomenal-faloodeh-149eb2.netlify.app/">
+<meta name="twitter:card" content="summary">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:#f5f7fb;color:#172033}
+a{color:inherit}
+header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;text-align:center;padding:42px 16px 36px}
+.brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:10px}
+.brand-mark{width:42px;height:42px;border-radius:12px;background:#fff2;display:grid;place-items:center;font-size:22px;border:1px solid #ffffff44}
+header h1{margin:0;font-size:clamp(26px,5vw,38px);letter-spacing:-.5px}
+header p{margin:9px auto 0;max-width:700px;opacity:.93;font-size:15px;line-height:1.5}
+nav{background:#fff;display:flex;justify-content:center;gap:8px;padding:12px 10px;box-shadow:0 2px 12px #00000012;position:sticky;top:0;z-index:100}
+nav a{color:#39415b;text-decoration:none;font-weight:700;font-size:14px;padding:9px 12px;border-radius:8px}
+nav a:hover,nav a.active{color:#4f46e5;background:#f0efff}
+.container{max-width:1080px;margin:28px auto;padding:0 16px}
+.hero-note{text-align:center;color:#697186;font-size:14px;margin:0 auto 20px;line-height:1.5}
+.tabs{display:flex;justify-content:center;gap:8px;margin:0 0 18px}
+.tab{border:0;padding:12px 20px;border-radius:10px;background:#fff;color:#333;font-weight:800;cursor:pointer;box-shadow:0 3px 14px #0000000d}
+.tab.active{background:#4f46e5;color:#fff}
+.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 7px 28px #00000012;margin-bottom:22px}
+.panel{display:none}.panel.active{display:block}
+.drop{border:2px dashed #b8bfd6;border-radius:15px;padding:36px 15px;text-align:center;background:#fafbff;cursor:pointer;transition:.2s}
+.drop:hover,.drop.dragover{border-color:#4f46e5;background:#f6f5ff}
+.drop-icon{font-size:38px}
+.drop h2{font-size:19px;margin:9px 0 7px}
+.drop p{color:#7b8192;margin:6px 0 16px;word-break:break-word}
+input[type=file]{display:none!important}
+button{border:0;border-radius:9px;padding:11px 17px;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;transition:.15s}
+button:hover:not(:disabled){filter:brightness(.96);transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.secondary{background:#eef0f7;color:#333}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:15px 0}
+.controls label{font-size:14px;color:#4a5264;font-weight:600}
+select{padding:10px;border:1px solid #d6d9e3;border-radius:8px;background:#fff;color:#222}
+.status{margin-top:12px;color:#555;min-height:20px}
+.progress-wrap{height:7px;background:#e9ebf2;border-radius:20px;overflow:hidden;margin-top:12px;display:none}
+.progress-wrap.show{display:block}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#7c3aed);transition:width .2s}
+.preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:18px}
+.preview-item{border:1px solid #e1e4ed;border-radius:11px;padding:10px;background:#fff}
+.preview-item img{width:100%;height:155px;object-fit:contain;background:#f5f6fa;border-radius:7px}
+.preview-item p{font-size:12px;margin:8px 0 0;word-break:break-word;color:#555}
+.info{text-align:center;color:#747b8c;margin:25px auto;line-height:1.6;font-size:13px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}
+.feature{background:#fff;border:1px solid #e8eaf1;border-radius:14px;padding:18px}
+.feature strong{display:block;margin-bottom:6px}
+.feature span{font-size:13px;color:#687083;line-height:1.5}
+footer{background:#171b2a;color:#dce0ea;text-align:center;padding:32px 15px;margin-top:40px}
+footer a{color:#fff;text-decoration:none;margin:0 9px;font-size:13px}
+footer a:hover{text-decoration:underline}
+.small{font-size:12px;color:#9da5b8;margin-top:12px}
+.page{max-width:900px;margin:30px auto;padding:0 16px}
+.page .card h2{margin-top:0;color:#4f46e5}
+.page .card h3{margin-top:24px}
+.page .card p,.page .card li{line-height:1.7;color:#596174}
+.notice{background:#f1f0ff;border-left:4px solid #4f46e5;padding:14px 16px;border-radius:8px;color:#444}
+@media(max-width:700px){
+ nav{gap:3px;flex-wrap:wrap}
+ nav a{font-size:12px;padding:8px 9px}
+ .container{margin-top:18px}
+ .card{padding:15px}
+ .drop{padding:28px 10px}
+ .features{grid-template-columns:1fr}
+ .controls{align-items:stretch}
+ .controls label{width:100%}
+ .controls select{margin-left:5px}
+ .preview{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:400px){.preview{grid-template-columns:1fr}.tab{padding:11px 13px;font-size:13px}}
+
+.seo-content{max-width:900px;margin:28px auto;padding:0 16px}
+.seo-section{background:#fff;border:1px solid #e8eaf1;border-radius:14px;padding:22px;margin:16px 0}
+.seo-section h2{color:#29245f;font-size:22px;margin:0 0 12px}
+.seo-section h3{color:#343b52;font-size:17px;margin:18px 0 7px}
+.seo-section p,.seo-section li{color:#596174;line-height:1.7}
+.seo-section ol,.seo-section ul{padding-left:22px}
+.faq-item{border-top:1px solid #e8eaf1;padding:14px 0}
+.faq-item:first-of-type{border-top:0}
+.faq-item summary{font-weight:800;color:#30384d;cursor:pointer;line-height:1.5}
+.faq-item p{margin:9px 0 0}
+@media(max-width:700px){.seo-section{padding:16px}.seo-section h2{font-size:20px}}
+
+
+/* Advanced browser-based PDF tools */
+.advanced-tools{max-width:1080px;margin:28px auto;padding:0 16px}
+.advanced-tools>h2{text-align:center;color:#29245f;margin:0 0 8px}
+.advanced-intro{text-align:center;color:#697186;line-height:1.6;margin:0 auto 20px;max-width:760px}
+.tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tool-card{background:#fff;border:1px solid #e4e7f0;border-radius:16px;padding:20px;box-shadow:0 4px 18px #00000008;min-width:0}
+.tool-card h3{margin:0 0 8px;color:#30345c;font-size:18px}
+.tool-card p{color:#687083;font-size:13px;line-height:1.55;margin:0 0 14px}
+.tool-card input[type=file],.tool-card input[type=text],.tool-card select,.tool-card textarea{display:block!important;width:100%;margin:8px 0 12px;padding:11px;border:1px solid #d6d9e3;border-radius:9px;background:#fff;color:#222;font:inherit}
+.tool-card input[type=file]{padding:9px}
+.tool-card textarea{min-height:130px;resize:vertical}
+.tool-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.tool-status{font-size:13px;color:#596174;min-height:20px;margin-top:10px;line-height:1.5}
+.tool-help{font-size:12px!important;color:#7b8192!important;margin-top:6px!important}
+.tool-card button.secondary{background:#eef0f7;color:#333}
+.tool-card button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:700px){.tool-grid{grid-template-columns:1fr}.tool-card{padding:16px}}
+
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><div class="brand-mark">↔</div></div>
+<h1>PDF ↔ Image Converter</h1>
+<p>Convert PDF to PNG/JPG or combine images into a PDF — quickly and directly in your browser.</p>
+</header>
+
+<nav>
+<a class="active" href="./">Home</a>
+<a href="./about.html">About</a>
+<a href="./privacy.html">Privacy Policy</a>
+<a href="./terms.html">Terms</a>
+<a href="./contact.html">Contact</a>
+</nav>
+
+<main class="container">
+<p class="hero-note">Free to use • No account required • Files are processed locally in your browser</p>
+
+<div class="tabs">
+<button type="button" class="tab active" id="pdfTab">PDF → Image</button>
+<button type="button" class="tab" id="imgTab">Image → PDF</button>
+</div>
+
+<div class="card panel active" id="pdfPanel">
+<div class="drop" id="pdfDrop">
+<div class="drop-icon">📄</div>
+<h2>Select a PDF</h2>
+<p id="pdfDropText">Click the button below or drag & drop a PDF file</p>
+<button type="button" id="choosePdfBtn">Choose PDF</button>
+<input id="pdfInput" type="file" accept="application/pdf">
+</div>
+<div class="controls">
+<label>Image format:
+<select id="format"><option value="png">PNG</option><option value="jpeg">JPG</option></select></label>
+<label>Quality:
+<select id="quality"><option value="1">High</option><option value="0.8">Medium</option><option value="0.6">Low</option></select></label>
+<button type="button" id="convertPdf" disabled>Convert PDF</button>
+<button type="button" id="downloadAll" class="secondary" disabled>Download All</button>
+</div>
+<div class="progress-wrap" id="pdfProgressWrap"><div class="progress" id="pdfProgress"></div></div>
+<div class="status" id="pdfStatus">No PDF selected.</div>
+<div class="preview" id="pdfPreview"></div>
+</div>
+
+<div class="card panel" id="imgPanel">
+<div class="drop" id="imgDrop">
+<div class="drop-icon">🖼️</div>
+<h2>Select Images</h2>
+<p id="imgDropText">Choose one or multiple JPG, PNG or WebP images</p>
+<button type="button" id="chooseImgBtn">Choose Images</button>
+<input id="imgInput" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+</div>
+<div class="controls">
+<label>Page size:
+<select id="pageSize"><option value="a4">A4</option><option value="fit">Fit to Image</option></select></label>
+<label>Orientation:
+<select id="orientation"><option value="auto">Auto</option><option value="p">Portrait</option><option value="l">Landscape</option></select></label>
+<button type="button" id="convertImg" disabled>Convert to PDF</button>
+<button type="button" id="clearImg" class="secondary" disabled>Clear</button>
+</div>
+<div class="progress-wrap" id="imgProgressWrap"><div class="progress" id="imgProgress"></div></div>
+<div class="status" id="imgStatus">No images selected.</div>
+<div class="preview" id="imgPreview"></div>
+</div>
+
+
+<section class="advanced-tools" id="advanced-tools">
+  <h2>Free Advanced PDF Tools</h2>
+  <p class="advanced-intro">Merge, split, rotate, remove pages, compress PDFs, and extract text from images. Processing happens in your browser; your selected files are not sent to this website's server.</p>
+
+  <div class="tool-grid">
+    <article class="tool-card">
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into one document in the order you select them.</p>
+      <input id="mergeFiles" type="file" accept="application/pdf,.pdf" multiple>
+      <div class="tool-actions"><button id="mergeBtn" type="button">Merge PDFs</button></div>
+      <div class="tool-status" id="mergeStatus" aria-live="polite">Select two or more PDF files.</div>
+    </article>
+
+    <article class="tool-card">
+      <h3>Split PDF / Extract Pages</h3>
+      <p>Create a new PDF containing only the pages you specify.</p>
+      <input id="splitFile" type="file" accept="application/pdf,.pdf">
+      <input id="splitPages" type="text" placeholder="Pages, e.g. 1,3-5,8" aria-label="Pages to extract">
+      <div class="tool-actions"><button id="splitBtn" type="button">Extract Pages</button></div>
+      <div class="tool-status" id="splitStatus" aria-live="polite">Enter page numbers or ranges.</div>
+    </article>
+
+    <article class="tool-card">
+      <h3>Rotate PDF</h3>
+      <p>Rotate every page in a PDF clockwise and download the updated file.</p>
+      <input id="rotateFile" type="file" accept="application/pdf,.pdf">
+      <select id="rotateDegrees" aria-label="Rotation angle">
+        <option value="90">90° clockwise</option>
+        <option value="180">180°</option>
+        <option value="270">270° clockwise</option>
+      </select>
+      <div class="tool-actions"><button id="rotateBtn" type="button">Rotate PDF</button></div>
+      <div class="tool-status" id="rotateStatus" aria-live="polite">Choose a PDF and rotation angle.</div>
+    </article>
+
+    <article class="tool-card">
+      <h3>Delete PDF Pages</h3>
+      <p>Remove selected pages. At least one page must remain in the output PDF.</p>
+      <input id="deleteFile" type="file" accept="application/pdf,.pdf">
+      <input id="deletePages" type="text" placeholder="Pages to remove, e.g. 2,4-6" aria-label="Pages to delete">
+      <div class="tool-actions"><button id="deleteBtn" type="button">Delete Pages</button></div>
+      <div class="tool-status" id="deleteStatus" aria-live="polite">Enter the page numbers to remove.</div>
+    </article>
+
+    <article class="tool-card">
+      <h3>PDF Compressor</h3>
+      <p>Reduce PDF size by converting pages to compressed images. This can reduce file size, but text will no longer be selectable and visual quality may decrease.</p>
+      <input id="compressFile" type="file" accept="application/pdf,.pdf">
+      <select id="compressQuality" aria-label="Compression quality">
+        <option value="0.45">Smallest file (lower quality)</option>
+        <option value="0.62" selected>Balanced</option>
+        <option value="0.78">Higher quality (larger file)</option>
+      </select>
+      <div class="tool-actions"><button id="compressBtn" type="button">Compress PDF</button></div>
+      <div class="tool-status" id="compressStatus" aria-live="polite">Best for scanned or image-heavy PDFs. Large files may take time.</div>
+    </article>
+
+    <article class="tool-card">
+      <h3>OCR Image to Text</h3>
+      <p>Recognize text in an image using OCR in your browser. The language data is downloaded from a public CDN when needed.</p>
+      <input id="ocrFile" type="file" accept="image/png,image/jpeg,image/webp,image/bmp">
+      <select id="ocrLanguage" aria-label="OCR language">
+        <option value="eng">English</option>
+        <option value="hin">Hindi</option>
+        <option value="eng+hin">English + Hindi</option>
+      </select>
+      <div class="tool-actions">
+        <button id="ocrBtn" type="button">Extract Text</button>
+        <button id="ocrCopyBtn" class="secondary" type="button">Copy Text</button>
+        <button id="ocrDownloadBtn" class="secondary" type="button">Download TXT</button>
+      </div>
+      <textarea id="ocrResult" placeholder="Recognized text will appear here..." aria-label="OCR result"></textarea>
+      <div class="tool-status" id="ocrStatus" aria-live="polite">Choose an image to extract text.</div>
+    </article>
+  </div>
+</section>
+
+<div class="features">
+<div class="feature"><strong>🔒 Private by design</strong><span>Your selected files are processed in your browser; the converter does not upload them to a conversion server.</span></div>
+<div class="feature"><strong>📱 Mobile friendly</strong><span>Designed to work on phones, tablets and desktop browsers.</span></div>
+<div class="feature"><strong>⚡ Simple & fast</strong><span>No account or software installation is required for basic conversion.</span></div>
+</div>
+<section class="seo-content" aria-label="PDF and image conversion guides">
+  <section class="seo-section">
+    <h2>How to Convert PDF to JPG Online</h2>
+    <p>Turn PDF pages into JPG images in a few simple steps. This browser-based tool lets you choose a PDF, select JPG as the output format, and download the converted pages.</p>
+    <ol>
+      <li>Open the <strong>PDF → Image</strong> tab above.</li>
+      <li>Select your PDF file using the Choose PDF button, or drag it into the file area.</li>
+      <li>Choose <strong>JPG</strong> from the Image format menu and select your preferred quality.</li>
+      <li>Click <strong>Convert PDF</strong>. When conversion finishes, choose <strong>Download All</strong>.</li>
+    </ol>
+    <p>Each PDF page is converted into a separate image file. The conversion runs in your browser, so keep this page open until it finishes.</p>
+  </section>
+
+  <section class="seo-section">
+    <h2>How to Convert JPG to PDF</h2>
+    <p>Combine one or more JPG images into a single PDF document directly in your browser.</p>
+    <ol>
+      <li>Open the <strong>Image → PDF</strong> tab.</li>
+      <li>Click <strong>Choose Images</strong> and select your JPG files. You can select multiple images.</li>
+      <li>Choose a page size: <strong>A4</strong> or <strong>Fit to Image</strong>.</li>
+      <li>Select the page orientation, or leave it on <strong>Auto</strong>.</li>
+      <li>Click <strong>Convert to PDF</strong>. Your PDF will be created and downloaded.</li>
+    </ol>
+  </section>
+
+  <section class="seo-section">
+    <h2>How to Convert PDF to PNG</h2>
+    <p>Use the PDF → Image tool to export PDF pages as PNG files. Select your PDF, choose <strong>PNG</strong> in the Image format menu, set the quality option if available, and click <strong>Convert PDF</strong>. Download the converted pages when processing is complete.</p>
+  </section>
+
+  <section class="seo-section">
+    <h2>Features of This Free PDF Converter</h2>
+    <ul>
+      <li><strong>PDF to images:</strong> Convert PDF pages to JPG or PNG.</li>
+      <li><strong>Images to PDF:</strong> Combine supported JPG, PNG, or WebP images into a PDF.</li>
+      <li><strong>Multiple images:</strong> Select more than one image for a single PDF.</li>
+      <li><strong>Page options:</strong> Choose A4 or Fit to Image and select page orientation.</li>
+      <li><strong>Browser-based processing:</strong> Files selected for conversion are processed in your browser by this page's converter code.</li>
+      <li><strong>No account required:</strong> Start converting without creating an account.</li>
+    </ul>
+  </section>
+
+  <section class="seo-section" id="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <details>
+        <summary>Is this PDF converter free to use?</summary>
+        <p>Yes. You can use the PDF-to-image and image-to-PDF tools on this website without creating an account.</p>
+      </details>
+    </div>
+    <div class="faq-item">
+      <details>
+        <summary>Can I convert PDF pages to JPG and PNG?</summary>
+        <p>Yes. Select a PDF in the PDF → Image tab, then choose JPG or PNG as the output format before converting.</p>
+      </details>
+    </div>
+    <div class="faq-item">
+      <details>
+        <summary>Can I combine multiple images into one PDF?</summary>
+        <p>Yes. In the Image → PDF tab, select multiple supported images and click Convert to PDF to create one PDF document.</p>
+      </details>
+    </div>
+    <div class="faq-item">
+      <details>
+        <summary>Are my selected files uploaded to a conversion server?</summary>
+        <p>The conversion code processes the selected files in your browser. The page also loads its PDF processing libraries from third-party CDN providers. See the Privacy Policy for more information.</p>
+      </details>
+    </div>
+    <div class="faq-item">
+      <details>
+        <summary>What should I do if conversion does not start?</summary>
+        <p>Check that your file is a supported PDF or image format, refresh the page, and try again. Make sure your browser allows the page's required scripts to load.</p>
+      </details>
+    </div>
+    <div class="faq-item">
+      <details>
+        <summary>Do I need to install software?</summary>
+        <p>No installation is required. Open the website in a modern browser and use the conversion tools on the page.</p>
+      </details>
+    </div>
+  </section>
+</section>
+
+<p class="info">Third-party libraries are loaded from CDN providers. Your files are processed locally by the converter. See our <a href="./privacy.html">Privacy Policy</a> for details.</p>
+</main>
+
+<footer>
+<div>
+<a href="./">Home</a><a href="./about.html">About</a><a href="./privacy.html">Privacy Policy</a><a href="./terms.html">Terms</a><a href="./contact.html">Contact</a>
+</div>
+<div class="small">© 2026 PDF ↔ Image Converter. All rights reserved.</div>
+</footer>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this PDF converter free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can use the PDF-to-image and image-to-PDF tools on this website without creating an account."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert PDF pages to JPG and PNG?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Select a PDF in the PDF to Image tab, then choose JPG or PNG as the output format before converting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I combine multiple images into one PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. In the Image to PDF tab, select multiple supported images and click Convert to PDF to create one PDF document."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my selected files uploaded to a conversion server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The conversion code processes the selected files in your browser. The page also loads its PDF processing libraries from third-party CDN providers. See the Privacy Policy for more information."
+      }
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const pdfjsLib=window.pdfjsLib;
+const jsPDF=window.jspdf&&window.jspdf.jsPDF;
+if(!pdfjsLib||!jsPDF){ $("pdfStatus").textContent="Converter libraries could not load. Please refresh the page."; return; }
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const pdfTab=$("pdfTab"),imgTab=$("imgTab"),pdfPanel=$("pdfPanel"),imgPanel=$("imgPanel");
+pdfTab.onclick=()=>{pdfTab.classList.add("active");imgTab.classList.remove("active");pdfPanel.classList.add("active");imgPanel.classList.remove("active")};
+imgTab.onclick=()=>{imgTab.classList.add("active");pdfTab.classList.remove("active");imgPanel.classList.add("active");pdfPanel.classList.remove("active")};
+
+let pdfFile=null,rendered=[],images=[];
+function wireDrop(drop,input,button){
+ button.onclick=e=>{e.preventDefault();e.stopPropagation();input.click()};
+ drop.onclick=e=>{if(e.target.closest("button"))return;input.click()};
+ drop.ondragover=e=>{e.preventDefault();drop.classList.add("dragover")};
+ drop.ondragleave=()=>drop.classList.remove("dragover");
+ drop.ondrop=e=>{
+  e.preventDefault();drop.classList.remove("dragover");
+  const files=[...e.dataTransfer.files].filter(f=>input.accept.includes("image")?f.type.startsWith("image/"):f.type==="application/pdf");
+  if(!files.length)return;
+  try{const dt=new DataTransfer();files.forEach(f=>dt.items.add(f));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}))}catch(err){console.error(err)}
+ };
+}
+wireDrop($("pdfDrop"),$("pdfInput"),$("choosePdfBtn"));
+wireDrop($("imgDrop"),$("imgInput"),$("chooseImgBtn"));
+
+$("pdfInput").onchange=function(){
+ pdfFile=this.files[0]||null;rendered=[];$("pdfPreview").innerHTML="";$("downloadAll").disabled=true;$("convertPdf").disabled=!pdfFile;
+ $("pdfStatus").textContent=pdfFile?"Selected: "+pdfFile.name:"No PDF selected.";
+ $("pdfDropText").textContent=pdfFile?"Selected: "+pdfFile.name:"Click the button below or drag & drop a PDF file";
+};
+$("convertPdf").onclick=async function(){
+ if(!pdfFile)return;this.disabled=true;$("downloadAll").disabled=true;$("pdfStatus").textContent="Converting PDF…";$("pdfPreview").innerHTML="";rendered=[];
+ const wrap=$("pdfProgressWrap"),bar=$("pdfProgress");wrap.classList.add("show");bar.style.width="0%";
+ try{
+  const data=await pdfFile.arrayBuffer(),pdf=await pdfjsLib.getDocument({data}).promise,format=$("format").value,quality=Number($("quality").value);
+  for(let i=1;i<=pdf.numPages;i++){
+   const page=await pdf.getPage(i),vp=page.getViewport({scale:1.7}),c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);
+   await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+   const url=c.toDataURL(format==="jpeg"?"image/jpeg":"image/png",quality),name="page-"+i+"."+(format==="jpeg"?"jpg":"png");rendered.push({url,name});
+   const item=document.createElement("div");item.className="preview-item";const im=document.createElement("img");im.src=url;item.appendChild(im);const p=document.createElement("p");p.textContent="Page "+i;item.appendChild(p);$("pdfPreview").appendChild(item);
+   bar.style.width=Math.round(i/pdf.numPages*100)+"%";$("pdfStatus").textContent="Converting page "+i+" of "+pdf.numPages+"…";
+  }
+  $("pdfStatus").textContent="Done — "+rendered.length+" page(s) converted.";$("downloadAll").disabled=!rendered.length;
+ }catch(e){console.error(e);$("pdfStatus").textContent="Could not convert this PDF. Please try another file."}
+ this.disabled=false;
+};
+$("downloadAll").onclick=()=>rendered.forEach((x,i)=>setTimeout(()=>{const a=document.createElement("a");a.href=x.url;a.download=x.name;document.body.appendChild(a);a.click();a.remove()},i*300));
+
+$("imgInput").onchange=function(){
+ images=[...this.files].filter(f=>f.type.startsWith("image/"));$("imgPreview").innerHTML="";
+ images.forEach((f,i)=>{const r=new FileReader();r.onload=()=>{const item=document.createElement("div");item.className="preview-item";const im=document.createElement("img");im.src=r.result;item.appendChild(im);const p=document.createElement("p");p.textContent=(i+1)+". "+f.name;item.appendChild(p);$("imgPreview").appendChild(item)};r.readAsDataURL(f)});
+ $("imgStatus").textContent=images.length?images.length+" image(s) selected.":"No images selected.";$("imgDropText").textContent=images.length?images.length+" image(s) selected.":"Choose one or multiple JPG, PNG or WebP images";$("convertImg").disabled=!images.length;$("clearImg").disabled=!images.length;
+};
+$("clearImg").onclick=()=>{$("imgInput").value="";images=[];$("imgPreview").innerHTML="";$("imgStatus").textContent="No images selected.";$("imgDropText").textContent="Choose one or multiple JPG, PNG or WebP images";$("convertImg").disabled=true;$("clearImg").disabled=true;$("imgProgressWrap").classList.remove("show");$("imgProgress").style.width="0%"};
+$("convertImg").onclick=async function(){
+ if(!images.length)return;this.disabled=true;$("imgStatus").textContent="Creating PDF…";const wrap=$("imgProgressWrap"),bar=$("imgProgress");wrap.classList.add("show");bar.style.width="0%";
+ try{
+  const size=$("pageSize").value,ori=$("orientation").value;let doc=null;
+  for(let i=0;i<images.length;i++){
+   const img=await loadImage(images[i]),iw=img.naturalWidth,ih=img.naturalHeight;let o=ori;if(o==="auto")o=iw>=ih?"l":"p";
+   if(!doc)doc=new jsPDF({orientation:o,unit:"mm",format:size==="fit"?[iw*.264583,ih*.264583]:"a4"});else if(size==="fit")doc.addPage([iw*.264583,ih*.264583],o);else doc.addPage("a4",o);
+   const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),margin=size==="fit"?0:8,maxW=pw-margin*2,maxH=ph-margin*2,scale=Math.min(maxW/(iw*.264583),maxH/(ih*.264583)),w=iw*.264583*scale,h=ih*.264583*scale;
+   doc.addImage(img,"JPEG",(pw-w)/2,(ph-h)/2,w,h);bar.style.width=Math.round((i+1)/images.length*100)+"%";$("imgStatus").textContent="Adding image "+(i+1)+" of "+images.length+"…";
+  }
+  doc.save("images-to-pdf.pdf");$("imgStatus").textContent="PDF created and downloaded successfully.";
+ }catch(e){console.error(e);$("imgStatus").textContent="Could not create PDF. Please try JPG/PNG images."}
+ this.disabled=false;
+};
+function loadImage(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
+})();
+</script>
+
+<script>
+(function(){
+"use strict";
+const byId = id => document.getElementById(id);
+const PDFLibRef = window.PDFLib;
+const pdfjsRef = window.pdfjsLib;
+const jsPDFRef = window.jspdf && window.jspdf.jsPDF;
+
+function status(id, message){ const el=byId(id); if(el) el.textContent=message; }
+function selectedFile(id){ return byId(id).files && byId(id).files[0]; }
+function downloadBlob(blob, filename){
+  const url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function safeBaseName(name){ return (name||"document").replace(/\.pdf$/i,"").replace(/[^a-z0-9_-]+/gi,"-") || "document"; }
+function parsePageRanges(input, pageCount){
+  const result=new Set();
+  const parts=input.split(",").map(x=>x.trim()).filter(Boolean);
+  if(!parts.length) throw new Error("Enter at least one page number or range.");
+  for(const part of parts){
+    const match=part.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+    if(!match) throw new Error("Use a format such as 1,3-5,8.");
+    const start=Number(match[1]), end=Number(match[2]||match[1]);
+    if(start<1 || end<start || end>pageCount) throw new Error("Page numbers must be between 1 and "+pageCount+".");
+    for(let n=start;n<=end;n++) result.add(n-1);
+  }
+  return [...result].sort((a,b)=>a-b);
+}
+async function loadPdfLibFile(file){
+  if(!PDFLibRef) throw new Error("PDF tools library did not load. Refresh the page and try again.");
+  return PDFLibRef.PDFDocument.load(await file.arrayBuffer());
+}
+function bindButton(id, handler){
+  const button=byId(id);
+  button.addEventListener("click", async ()=>{
+    button.disabled=true;
+    try{ await handler(); }
+    catch(err){ console.error(err); const target=({
+      mergeBtn:"mergeStatus",splitBtn:"splitStatus",rotateBtn:"rotateStatus",
+      deleteBtn:"deleteStatus",compressBtn:"compressStatus",ocrBtn:"ocrStatus"
+    })[id]; if(target) status(target,err && err.message ? err.message : "Something went wrong. Please try again."); }
+    finally{ button.disabled=false; }
+  });
+}
+
+bindButton("mergeBtn", async ()=>{
+  const files=[...byId("mergeFiles").files];
+  if(files.length<2) throw new Error("Select at least two PDF files.");
+  status("mergeStatus","Merging "+files.length+" PDF files…");
+  const merged=await PDFLibRef.PDFDocument.create();
+  for(const file of files){
+    const source=await loadPdfLibFile(file);
+    const pages=await merged.copyPages(source,source.getPageIndices());
+    pages.forEach(page=>merged.addPage(page));
+  }
+  const bytes=await merged.save({useObjectStreams:true});
+  downloadBlob(new Blob([bytes],{type:"application/pdf"}),"merged.pdf");
+  status("mergeStatus","Done. Your merged PDF has been downloaded.");
+});
+
+bindButton("splitBtn", async ()=>{
+  const file=selectedFile("splitFile");
+  if(!file) throw new Error("Choose a PDF file first.");
+  const source=await loadPdfLibFile(file), count=source.getPageCount();
+  const indexes=parsePageRanges(byId("splitPages").value,count);
+  status("splitStatus","Extracting "+indexes.length+" page(s)…");
+  const output=await PDFLibRef.PDFDocument.create();
+  const pages=await output.copyPages(source,indexes);
+  pages.forEach(page=>output.addPage(page));
+  const bytes=await output.save({useObjectStreams:true});
+  downloadBlob(new Blob([bytes],{type:"application/pdf"}),safeBaseName(file.name)+"-pages.pdf");
+  status("splitStatus","Done. Extracted "+indexes.length+" page(s) from "+count+".");
+});
+
+bindButton("rotateBtn", async ()=>{
+  const file=selectedFile("rotateFile");
+  if(!file) throw new Error("Choose a PDF file first.");
+  const doc=await loadPdfLibFile(file), angle=Number(byId("rotateDegrees").value);
+  doc.getPages().forEach(page=>{
+    const current=page.getRotation().angle||0;
+    page.setRotation(PDFLibRef.degrees((current+angle)%360));
+  });
+  const bytes=await doc.save({useObjectStreams:true});
+  downloadBlob(new Blob([bytes],{type:"application/pdf"}),safeBaseName(file.name)+"-rotated.pdf");
+  status("rotateStatus","Done. Rotated "+doc.getPageCount()+" page(s).");
+});
+
+bindButton("deleteBtn", async ()=>{
+  const file=selectedFile("deleteFile");
+  if(!file) throw new Error("Choose a PDF file first.");
+  const doc=await loadPdfLibFile(file), count=doc.getPageCount();
+  const indexes=parsePageRanges(byId("deletePages").value,count);
+  if(indexes.length>=count) throw new Error("You cannot delete every page. Keep at least one page.");
+  indexes.sort((a,b)=>b-a).forEach(index=>doc.removePage(index));
+  const bytes=await doc.save({useObjectStreams:true});
+  downloadBlob(new Blob([bytes],{type:"application/pdf"}),safeBaseName(file.name)+"-edited.pdf");
+  status("deleteStatus","Done. Removed "+indexes.length+" page(s); "+doc.getPageCount()+" page(s) remain.");
+});
+
+bindButton("compressBtn", async ()=>{
+  const file=selectedFile("compressFile");
+  if(!file) throw new Error("Choose a PDF file first.");
+  if(!pdfjsRef || !jsPDFRef) throw new Error("PDF rendering libraries did not load. Refresh and try again.");
+  status("compressStatus","Loading PDF…");
+  const data=await file.arrayBuffer();
+  const pdf=await pdfjsRef.getDocument({data}).promise;
+  if(pdf.numPages>40) throw new Error("This browser-based compressor currently supports up to 40 pages per file. Try a smaller PDF.");
+  const quality=Number(byId("compressQuality").value);
+  let output=null;
+  for(let i=1;i<=pdf.numPages;i++){
+    status("compressStatus","Compressing page "+i+" of "+pdf.numPages+"…");
+    const page=await pdf.getPage(i), viewport=page.getViewport({scale:1.35});
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.ceil(viewport.width); canvas.height=Math.ceil(viewport.height);
+    const ctx=canvas.getContext("2d",{alpha:false});
+    await page.render({canvasContext:ctx,viewport}).promise;
+    const image=canvas.toDataURL("image/jpeg",quality);
+    const widthMm=viewport.width*25.4/96, heightMm=viewport.height*25.4/96;
+    const orientation=widthMm>heightMm?"landscape":"portrait";
+    if(!output) output=new jsPDFRef({orientation,unit:"mm",format:[widthMm,heightMm],compress:true});
+    else output.addPage([widthMm,heightMm],orientation);
+    output.addImage(image,"JPEG",0,0,widthMm,heightMm,undefined,"FAST");
+    canvas.width=1; canvas.height=1;
+  }
+  const blob=output.output("blob");
+  downloadBlob(blob,safeBaseName(file.name)+"-compressed.pdf");
+  const before=(file.size/1024).toFixed(1), after=(blob.size/1024).toFixed(1);
+  const change= file.size ? Math.round((1-blob.size/file.size)*100) : 0;
+  status("compressStatus","Finished: "+before+" KB → "+after+" KB ("+(change>=0?change+"% smaller":Math.abs(change)+"% larger")+"). This image-based PDF may have non-selectable text.");
+});
+
+let ocrText="";
+bindButton("ocrBtn", async ()=>{
+  const file=selectedFile("ocrFile");
+  if(!file) throw new Error("Choose an image file first.");
+  if(!window.Tesseract) throw new Error("OCR library did not load. Refresh the page and try again.");
+  const language=byId("ocrLanguage").value;
+  status("ocrStatus","Starting OCR. The language data may need to download the first time…");
+  const worker=await window.Tesseract.createWorker(language,1,{
+    logger: message=>{
+      if(message.status==="recognizing text") status("ocrStatus","Recognizing text: "+Math.round((message.progress||0)*100)+"%");
+      else if(message.status) status("ocrStatus",message.status+"…");
+    }
+  });
+  try{
+    const result=await worker.recognize(file);
+    ocrText=(result.data && result.data.text)||"";
+    byId("ocrResult").value=ocrText;
+    status("ocrStatus",ocrText.trim()?"OCR finished. Review the text above.":"No readable text was detected. Try a clearer image.");
+  } finally { await worker.terminate(); }
+});
+byId("ocrCopyBtn").addEventListener("click",async ()=>{
+  const value=byId("ocrResult").value;
+  if(!value.trim()){status("ocrStatus","There is no text to copy yet.");return;}
+  try{await navigator.clipboard.writeText(value);status("ocrStatus","Text copied to clipboard.");}
+  catch(e){byId("ocrResult").select();status("ocrStatus","Select the text and use Ctrl+C to copy.");}
+});
+byId("ocrDownloadBtn").addEventListener("click",()=>{
+  const value=byId("ocrResult").value;
+  if(!value.trim()){status("ocrStatus","There is no text to download yet.");return;}
+  downloadBlob(new Blob([value],{type:"text/plain;charset=utf-8"}),"extracted-text.txt");
+  status("ocrStatus","Text file downloaded.");
+});
+})();
+</script>
+
+</body>
+</html>
